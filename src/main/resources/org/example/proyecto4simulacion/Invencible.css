@@ -1,0 +1,14 @@
+
+.root {
+
+    CHART_COLOR_1: #007bff;
+
+    /* Serie 2: Amarillo Industrial */
+    CHART_COLOR_2: #ffcc00;
+
+}
+
+
+.chart-plot-background {
+    -fx-background-color: transparent;
+}

@@ -5,6 +5,7 @@ import javafx.scene.chart.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -50,6 +51,18 @@ public class ControladorSimulacion {
     private TextField CampoDeseadp;
     @FXML
     private TextField campoObservado;
+
+    @FXML
+    private GridPane panelMegaDashboard; // Tu nuevo contenedor de cuadrícula
+    // Las 4 gráficas exclusivas de la fábrica
+    @FXML
+    private ScatterChart<Number, Number> graficaMontecarloDash;
+    @FXML
+    private BarChart<String, Number> graficaProbabilidadesDash; // Para Poisson y Binomial
+    @FXML
+    private BarChart<String, Number> graficaChiDash; // Para los sensores
+    @FXML
+    private LineChart<Number, Number> graficaKolmogorovDash; // Para el brazo robótico
 
     public void initialize() {
         comboModoEstudio.setOnAction(actionEvent -> ejecutar());
@@ -97,31 +110,20 @@ public class ControladorSimulacion {
 
     private void OcultarInformacion() {
 
-
+// Apagamos lo demás (tu código original)
         graficaBarras.setVisible(false);
         campoProbabilidad.setVisible(false);
-        campoProbabilidad.setText("");
         exitosRequeridos.setVisible(false);
-        exitosRequeridos.setText("");
         campoLambda.setVisible(false);
-        campoLambda.setText("");
         campoCasos.setVisible(false);
-        campoCasos.setText("");
         campoResultado.setVisible(false);
-        campoResultado.setText("");
         campoEsperado.setVisible(false);
-        campoEsperado.setText("");
         campoReal.setVisible(false);
-        campoReal.setText("");
         campoAnimacion.setVisible(false);
         graficaPuntos.setVisible(false);
         Totalnumeros.setVisible(false);
-        Totalnumeros.setText("");
         graficaLineas.setVisible(false);
-        campoEsperado.setVisible(false);
-        campoProbabilidad.setText("");
         campoObservado.setVisible(false);
-        campoObservado.setText("");
         campoAnimacion.getChildren().clear();
 
     }
@@ -140,7 +142,6 @@ private void PrenderChicuadrada(){
         campoEsperado.setVisible(true);
         campoAnimacion.setVisible(true);
 
-        // Limpiamos cualquier cliente de simulaciones pasadas
         campoAnimacion.getChildren().clear();
 
         double anchoPane = campoAnimacion.getWidth();
@@ -167,34 +168,13 @@ private void PrenderChicuadrada(){
 
         campoAnimacion.getChildren().addAll(cajaRegistradora, cajaRegistradora2, cajaRegistradora3);
     }
-    public  void ActivarFormulas(){
+    private void ActivarFabrica() {
         OcultarInformacion();
+        panelMegaDashboard.setVisible(true);
+        Totalnumeros.setVisible(true);
+        Totalnumeros.setPromptText("Lote a simular (ej. 1000)");
         campoResultado.setVisible(true);
-        campoResultado.setPromptText("Tasa de Defectos");
-        campoCasos.setVisible(true);
-        campoCasos.setPromptText("Total a producir");
-        campoAnimacion.setVisible(true);
-
-        campoAnimacion.getChildren().clear();
-
-        double anchoPane = campoAnimacion.getWidth();
-        if (anchoPane == 0) anchoPane = 700;
-
-        Rectangle banda = new Rectangle(anchoPane, 40, Color.web("#222222"));
-        banda.setX(0);
-        banda.setY(200);
-
-        Rectangle escaner = new Rectangle(30, 80, Color.web("#ffcc00"));
-        escaner.setX((anchoPane / 2) - 15);
-        escaner.setY(180);
-
-        Circle luzLaser = new Circle(5, Color.RED);
-        luzLaser.setCenterX(anchoPane / 2);
-        luzLaser.setCenterY(190);
-
-        campoAnimacion.setStyle("-fx-background-color: #514f4f");
-        campoAnimacion.getChildren().addAll(banda, escaner, luzLaser);
-
+        campoResultado.setPromptText("Bitácora de Ingeniería");
     }
     public void limpiarPantalla() {
         graficaBarras.getData().clear();
@@ -357,8 +337,9 @@ private void PrenderChicuadrada(){
                 break;
 
             case "Montecarlo":
-                prenderMontecarlo();
                 BorradoBotones();
+                prenderMontecarlo();
+
 
                 calcular.setOnAction(actionEvent -> {
                     graficaPuntos.getData().clear();
@@ -482,7 +463,6 @@ private void PrenderChicuadrada(){
 
                         int numCajas = Math.min(3, observados.length);
 
-                        // 4. Ciclo de Animación
                         for (int i = 0; i < numCajas; i++) {
                             int numClientes = (int) observados[i];
 
@@ -516,79 +496,102 @@ private void PrenderChicuadrada(){
                 });
                 break;
 
-            case "Casino":
-                OcultarInformacion();
-                // Prendemos TODO para que se vea como un Dashboard profesional
-                graficaPuntos.setVisible(true);
-                graficaBarras.setVisible(true);
-                graficaLineas.setVisible(true);
-                campoResultado.setVisible(true);
-                Totalnumeros.setVisible(true);
-                Totalnumeros.setPromptText("Número de jugadas (N)");
+            case "Fábrica":
+                BorradoBotones();
+                ActivarFabrica();
 
                 calcular.setOnAction(actionEvent -> {
                     try {
-                        // 1. Limpieza total de gráficas
-                        graficaPuntos.getData().clear();
-                        graficaBarras.getData().clear();
-                        graficaLineas.getData().clear();
-                        int N = Integer.parseInt(Totalnumeros.getText());
+                        graficaMontecarloDash.getData().clear();
+                        graficaProbabilidadesDash.getData().clear();
+                        graficaChiDash.getData().clear();
+                        graficaKolmogorovDash.getData().clear();
 
-                        // --- FÓRMULA 1 Y 2: MONTECARLO + MERSENNE TWISTER (Tiro al Blanco) ---
-                        XYChart.Series<Number, Number> seriesMontecarlo = new XYChart.Series<>();
-                        seriesMontecarlo.setName("Dardos");
-                        int exitosMontecarlo = 0;
-                        for (int i = 0; i < N; i++) {
+                        int lote = Integer.parseInt(Totalnumeros.getText());
+
+                        XYChart.Series<Number, Number> serieOblea = new XYChart.Series<>();
+                        serieOblea.setName("Láser de Corte");
+                        int puntosDentro = 0;
+                        for (int i = 0; i < lote; i++) {
                             double x = (formulaRandom.nextDouble() * 2) - 1;
                             double y = (formulaRandom.nextDouble() * 2) - 1;
-                            if ((x * x + y * y) <= 1) exitosMontecarlo++;
-                            if (i < 500) seriesMontecarlo.getData().add(new XYChart.Data<>(x, y)); // Limitamos puntos para no trabar JavaFX
-                        }
-                        double piEstimado = 4.0 * ((double) exitosMontecarlo / N);
+                            if ((x * x + y * y) <= 1.0) puntosDentro++;
 
-                        // --- FÓRMULA 3: DISTRIBUCIÓN BINOMIAL (Premios en Tragamonedas) ---
+                            // Solo graficamos 400 puntos para que la app no se trabe
+                            if (i < 400) serieOblea.getData().add(new XYChart.Data<>(x, y));
+                        }
+                        double areaUtil = 4.0 * ((double) puntosDentro / lote);
+                        graficaMontecarloDash.getData().add(serieOblea);
+
+
+                        // =========================================================
+                        // 2. POISSON & BINOMIAL (Defectos y Control de Calidad)
+                        // =========================================================
+                        XYChart.Series<String, Number> seriePoisson = new XYChart.Series<>();
+                        seriePoisson.setName("Polvo (Poisson λ=2)");
+                        for (int i = 0; i <= 5; i++) {
+                            double prob = formula.calcularPoisson(2, i); // λ=2
+                            seriePoisson.getData().add(new XYChart.Data<>(i + " motas", prob));
+                        }
+
                         XYChart.Series<String, Number> serieBinomial = new XYChart.Series<>();
-                        serieBinomial.setName("Prob. Premios");
-                        double pGanar = 0.1; // 10% de probabilidad de ganar en la máquina
-                        for (int k = 0; k < 10; k++) {
-                            double prob = formula.calcularBinomial(20, pGanar, k); // n=20 intentos
-                            serieBinomial.getData().add(new XYChart.Data<>("Premio " + k, prob * 100));
+                        serieBinomial.setName("Éxito (Binomial n=5, p=0.8)");
+                        for (int i = 0; i <= 5; i++) {
+                            double prob = formula.calcularBinomial(5, 0.8, i); // n=5 chips, p=80%
+                            serieBinomial.getData().add(new XYChart.Data<>(i + " chips", prob));
                         }
+                        graficaProbabilidadesDash.getData().addAll(seriePoisson, serieBinomial);
 
-                        // --- FÓRMULA 4: CHI-CUADRADA (Auditoría de Mesas) ---
-                        // Comparamos 3 mesas: Esperábamos 100 personas en cada una, pero llegaron estos:
-                        double[] esperadosChi = {100, 100, 100};
-                        double[] observadosChi = {95, 120, 85};
-                        double resultadoChi = formula.calcularChiCuadrada(esperadosChi, observadosChi);
 
-                        XYChart.Series<String, Number> serieChiReal = new XYChart.Series<>();
-                        serieChiReal.setName("Real");
-                        serieChiReal.getData().add(new XYChart.Data<>("Mesa 1", 95));
-                        serieChiReal.getData().add(new XYChart.Data<>("Mesa 2", 120));
-                        serieChiReal.getData().add(new XYChart.Data<>("Mesa 3", 85));
+                        // =========================================================
+                        // 3. CHI-CUADRADA (Auditoría de 3 Sensores Láser)
+                        // =========================================================
+                        double[] esperadosSensor = {50, 50, 50}; // Esperamos que detecten 50 errores
+                        // Simulamos lo que detectaron realmente (con Mersenne)
+                        double[] observadosSensor = {
+                                40 + formulaRandom.nextInt(20),
+                                40 + formulaRandom.nextInt(20),
+                                40 + formulaRandom.nextInt(20)
+                        };
+                        double chi2 = formula.calcularChiCuadrada(esperadosSensor, observadosSensor);
 
-                        // --- FÓRMULA 5: KOLMOGOROV-SMIRNOV (Honestidad de Dados) ---
-                        double[] datosDados = new double[10];
-                        for(int i=0; i<10; i++) datosDados[i] = formulaRandom.nextDouble();
-                        double dMax = formula.calcularKolmogorov(datosDados);
+                        XYChart.Series<String, Number> serieSensorEsp = new XYChart.Series<>();
+                        serieSensorEsp.setName("Esperado");
+                        XYChart.Series<String, Number> serieSensorReal = new XYChart.Series<>();
+                        serieSensorReal.setName("Real");
 
-                        java.util.Arrays.sort(datosDados);
+                        for(int i=0; i<3; i++) {
+                            serieSensorEsp.getData().add(new XYChart.Data<>("S-" + (i+1), esperadosSensor[i]));
+                            serieSensorReal.getData().add(new XYChart.Data<>("S-" + (i+1), observadosSensor[i]));
+                        }
+                        graficaChiDash.getData().addAll(serieSensorEsp, serieSensorReal);
+
+
+                        // =========================================================
+                        // 4. KOLMOGOROV-SMIRNOV (Precisión del Brazo Robótico)
+                        // =========================================================
+                        double[] erroresBrazo = new double[10];
+                        for(int i=0; i<10; i++) erroresBrazo[i] = formulaRandom.nextDouble();
+                        double dMax = formula.calcularKolmogorov(erroresBrazo);
+
+                        java.util.Arrays.sort(erroresBrazo);
                         XYChart.Series<Number, Number> serieKS = new XYChart.Series<>();
-                        serieKS.setName("Distribución Dados");
+                        serieKS.setName("Tensión del Brazo");
                         for(int i=0; i<10; i++) {
-                            serieKS.getData().add(new XYChart.Data<>(datosDados[i], (double)(i+1)/10));
+                            serieKS.getData().add(new XYChart.Data<>(erroresBrazo[i], (double)(i+1)/10));
                         }
+                        graficaKolmogorovDash.getData().add(serieKS);
 
-                        // --- RESULTADO FINAL EN TEXTO ---
-                        campoResultado.setText(String.format("Pi: %.2f | Chi2: %.2f | Dmax: %.2f", piEstimado, resultadoChi, dMax));
+                        // =========================================================
+                        // 5. REPORTE FINAL EN LA BITÁCORA
+                        // =========================================================
+                        String estadoMaquina = (chi2 > 5.99) ? "ALERTA: Sensor Descalibrado" : "Sensores OK";
+                        String estadoBrazo = (dMax > 0.4) ? "ALERTA: Falla Mecánica" : "Brazo Robótico OK";
 
-                        // --- AGREGAR TODO A LAS GRÁFICAS ---
-                        graficaPuntos.getData().add(seriesMontecarlo);
-                        graficaBarras.getData().addAll(serieBinomial, serieChiReal);
-                        graficaLineas.getData().add(serieKS);
+                        campoResultado.setText(String.format("Área: %.2f | %s | %s", areaUtil, estadoMaquina, estadoBrazo));
 
                     } catch (Exception e) {
-                        System.out.println("Error en el Casino: " + e.getMessage());
+                        System.out.println("Ingresa un número en la caja de texto.");
                     }
                 });
                 break;

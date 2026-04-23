@@ -18,44 +18,70 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 
-<BorderPane prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.proyecto4simulacion.ControladorSimulacion">
+<BorderPane prefHeight="700.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.proyecto4simulacion.ControladorSimulacion" stylesheets="@Invencible.css">
 
     <center>
-        <StackPane fx:id="panelGraficas" prefHeight="400.0" prefWidth="400.0">
-            <BarChart fx:id="graficaBarras" visible="false">
-                <xAxis>
-                    <CategoryAxis label="Eventos" />
-                </xAxis>
-                <yAxis>
-                    <NumberAxis label="Probabilidad" />
-                </yAxis>
-            </BarChart>
+        <StackPane>
 
-            <ScatterChart fx:id="graficaPuntos" maxHeight="400.0" maxWidth="400.0" visible="false">
-                <xAxis>
-                    <NumberAxis autoRanging="false" lowerBound="-1.0" upperBound="1.0" tickUnit="0.2" />
-                </xAxis>
-                <yAxis>
-                    <NumberAxis autoRanging="false" lowerBound="-1.0" upperBound="1.0" tickUnit="0.2" />
-                </yAxis>
-            </ScatterChart>
+            <StackPane fx:id="panelGraficas" prefHeight="400.0" prefWidth="600.0">
+                <BarChart fx:id="graficaBarras" visible="false">
+                    <xAxis><CategoryAxis label="Eventos" /></xAxis>
+                    <yAxis><NumberAxis label="Probabilidad" /></yAxis>
+                </BarChart>
 
-            <LineChart fx:id="graficaLineas" visible="false">
-                <xAxis>
-                    <NumberAxis label="Valores" />
-                </xAxis>
-                <yAxis>
-                    <NumberAxis label="Probabilidad Acumulada (F(X))" />
-                </yAxis>
-            </LineChart>
+                <ScatterChart fx:id="graficaPuntos" maxHeight="400.0" maxWidth="400.0" visible="false">
+                    <xAxis><NumberAxis autoRanging="false" lowerBound="-1.0" upperBound="1.0" tickUnit="0.2" /></xAxis>
+                    <yAxis><NumberAxis autoRanging="false" lowerBound="-1.0" upperBound="1.0" tickUnit="0.2" /></yAxis>
+                </ScatterChart>
 
-            <Pane fx:id="campoAnimacion" visible="false" />
+                <LineChart fx:id="graficaLineas" visible="false">
+                    <xAxis><NumberAxis label="Valores" /></xAxis>
+                    <yAxis><NumberAxis label="Probabilidad Acumulada (F(X))" /></yAxis>
+                </LineChart>
+
+                <Pane fx:id="campoAnimacion" visible="false" />
+            </StackPane>
+
+            <GridPane fx:id="panelMegaDashboard" hgap="10" vgap="10" style="-fx-padding: 10;" visible="false">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints vgrow="SOMETIMES" percentHeight="50.0" />
+                    <RowConstraints vgrow="SOMETIMES" percentHeight="50.0" />
+                </rowConstraints>
+                <children>
+
+                    <ScatterChart fx:id="graficaMontecarloDash" title="Corte Láser (Montecarlo)" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <xAxis><NumberAxis autoRanging="false" lowerBound="-1.0" upperBound="1.0" tickUnit="0.5" /></xAxis>
+                        <yAxis><NumberAxis autoRanging="false" lowerBound="-1.0" upperBound="1.0" tickUnit="0.5" /></yAxis>
+                    </ScatterChart>
+
+                    <BarChart fx:id="graficaProbabilidadesDash" title="Defectos (Poisson/Binomial)" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <xAxis><CategoryAxis label="Eventos" /></xAxis>
+                        <yAxis><NumberAxis label="Probabilidad" /></yAxis>
+                    </BarChart>
+
+                    <BarChart fx:id="graficaChiDash" title="Auditoría de Sensores (Chi^2)" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                        <xAxis><CategoryAxis label="Sensores" /></xAxis>
+                        <yAxis><NumberAxis label="Errores Detectados" /></yAxis>
+                    </BarChart>
+
+                    <LineChart fx:id="graficaKolmogorovDash" title="Precisión Robótica (Kolmogorov)" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <xAxis><NumberAxis label="Desviación" /></xAxis>
+                        <yAxis><NumberAxis label="F(X)" /></yAxis>
+                    </LineChart>
+
+                </children>
+            </GridPane>
+
         </StackPane>
     </center>
 
     <bottom>
         <GridPane alignment="CENTER" hgap="30" style="-fx-padding: 20;" vgap="30">
-            <ComboBox fx:id="comboModoEstudio" prefHeight="25.0" prefWidth="347.0" promptText="Formula" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="0">
+            <ComboBox fx:id="comboModoEstudio" prefHeight="25.0" prefWidth="347.0" promptText="Selecciona un Modo" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="0">
                 <items>
                     <FXCollections fx:factory="observableArrayList">
                         <String fx:value="Distribución Poisson" />
@@ -65,27 +91,26 @@
                         <String fx:value="Montecarlo" />
                         <String fx:value="Chi-cuadrada" />
                         <String fx:value="CasoAplicado" />
-                        <String fx:value="Casino" />
-
+                        <String fx:value="Fábrica" />
                     </FXCollections>
                 </items>
             </ComboBox>
+
             <Button fx:id="calcular" text="Calcular" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+
             <TextField fx:id="campoLambda" promptText="Lambda" visible="false" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-            <TextField fx:id="campoEsperado" promptText="resultadosEsperado" visible="false" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-            <TextField fx:id="campoCasos" promptText="NumeroCasos" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <TextField fx:id="campoReal" promptText="resultadosReales" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <TextField fx:id="Totalnumeros" promptText="Numeros" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <TextField fx:id="exitosRequeridos" prefHeight="25.0" prefWidth="201.0" promptText="Numero de exitos que se buscan" visible="false" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-            <TextField fx:id="CampoDeseadp" promptText="DatosEsperados" visible="false" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-            <TextField fx:id="campoObservado" promptText="ResultadoEsperado" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField fx:id="campoEsperado" promptText="Resultados Esperados" visible="false" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <TextField fx:id="campoCasos" promptText="Número de Casos" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField fx:id="campoReal" promptText="Resultados Reales" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField fx:id="Totalnumeros" promptText="Total de Números" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField fx:id="exitosRequeridos" prefHeight="25.0" prefWidth="201.0" promptText="Número de éxitos requeridos" visible="false" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+            <TextField fx:id="CampoDeseadp" promptText="Datos Deseados" visible="false" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <TextField fx:id="campoObservado" promptText="Resultado Observado" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField fx:id="campoResultado" editable="false" focusTraversable="false" mouseTransparent="true" promptText="Resultado" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="2" prefWidth="300" />
+            <TextField fx:id="campoProbabilidad" promptText="Probabilidad" visible="false" GridPane.columnIndex="0" GridPane.rowIndex="1" />
 
+            <HBox fx:id="panelSliders" alignment="CENTER" spacing="20" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="4"/>
 
-            <TextField fx:id="campoResultado" editable="false" focusTraversable="false" mouseTransparent="true" promptText="Resultado" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-
-            <TextField fx:id="campoProbabilidad" layoutX="170.0" layoutY="85.0" promptText="Probabilidad" visible="false" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-
-            <HBox fx:id="panelSliders" alignment="CENTER" spacing="20" />
             <columnConstraints>
                 <ColumnConstraints />
                 <ColumnConstraints />
@@ -98,7 +123,6 @@
                 <RowConstraints />
                 <RowConstraints />
             </rowConstraints>
-
         </GridPane>
     </bottom>
 </BorderPane>
